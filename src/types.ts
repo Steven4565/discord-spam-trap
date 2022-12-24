@@ -1,4 +1,5 @@
-import { Interaction, SlashCommandBuilder } from 'discord.js';
+import { Events, Interaction, SlashCommandBuilder } from 'discord.js';
+import { DiscordClient } from './DiscordClient';
 
 export interface Command {
   data: SlashCommandBuilder;
@@ -9,4 +10,9 @@ export interface Config {
   channelId: undefined | string;
   enabled: boolean;
   excluded: number[];
+}
+
+export interface EventObject {
+  name: Events;
+  execute(client: DiscordClient, ...args: any[]): void;
 }
