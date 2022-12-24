@@ -6,6 +6,8 @@ import { Command } from './src/types';
 
 dotenv.config();
 
+const commandId = '1055745395990474832'; // CHANGE THIS TO DELETE
+
 const commands: Command[] = [];
 const commandFiles = fs
   .readdirSync('./src/commands/')
@@ -16,19 +18,12 @@ for (const file of commandFiles) {
   commands.push(command.data.toJSON());
 }
 
-// Construct and prepare an instance of the REST module
 const rest = new REST({ version: '10' }).setToken(process.env.token ?? '');
 
-// and deploy your commands!
 (async () => {
   try {
     rest
-      .delete(
-        Routes.applicationCommand(
-          process.env.client_id ?? '',
-          '1055745395990474832'
-        )
-      )
+      .delete(Routes.applicationCommand(process.env.client_id ?? '', commandId))
       .then(() => console.log('Successfully deleted application command'))
       .catch(console.error);
   } catch (error) {

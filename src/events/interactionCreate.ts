@@ -17,7 +17,8 @@ const interactionCreate: EventObject = {
     }
 
     try {
-      command.execute(interaction);
+      if (interaction.isChatInputCommand())
+        command.execute(client, interaction);
     } catch (error) {
       console.error(error);
       await interaction.reply({

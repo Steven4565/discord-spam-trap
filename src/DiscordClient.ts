@@ -1,17 +1,20 @@
 import { Client, ClientOptions, Collection } from 'discord.js';
-import { Command } from './types';
+import { Command, GuildConfig, GuildListConfig } from './types';
+import { loadConfig } from './config/config';
 import fs from 'node:fs';
 import path from 'node:path';
 
 export class DiscordClient extends Client {
   public commands: Collection<string, Command>;
+  public config: GuildListConfig;
 
   constructor(options: ClientOptions) {
     super(options);
     this.commands = new Collection<string, Command>();
-    this.login(process.env.token);
+    this.config = loadConfig();
     this.loadCommands();
     this.loadEvents();
+    this.login(process.env.token);
   }
 
   private loadCommands() {

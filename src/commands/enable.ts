@@ -3,8 +3,10 @@ import {
   Interaction,
   SlashCommandBooleanOption,
   PermissionFlagsBits,
+  ChatInputCommandInteraction,
 } from 'discord.js';
-import config from '../config/config';
+import { getGuildConfig, updateConfig } from '../config/config';
+import { DiscordClient } from '../DiscordClient';
 import { replyEphemeral } from '../utils/commandHelpers';
 
 module.exports = {
@@ -16,18 +18,27 @@ module.exports = {
     )
     .setDefaultMemberPermissions(
       PermissionFlagsBits.BanMembers | PermissionFlagsBits.ManageChannels
-    ),
-  async execute(interaction: Interaction) {
+    )
+    .setDMPermission(false),
+  async execute(
+    client: DiscordClient,
+    interaction: ChatInputCommandInteraction
+  ) {
     if (!interaction.isChatInputCommand()) return;
+
+    if (!interaction.guildId)
+      return replyEphemeral(interaction, 'Could not access guild id');
+    const guildConfig = getGuildConfig(client.config, interaction.guildId);
 
     const option = interaction.options.getBoolean('on');
 
     if (option! !== null && option == false) {
-      config.enabled = false;
+      guildConfig.enabled = false;
       return replyEphemeral(interaction, 'Stopped watching trap channel');
     }
 
-    config.enabled = true;
+    guildConfig.enabled = true;
     replyEphemeral(interaction, 'Watching trap channel');
+    updateConfig(client.config);
   },
 };

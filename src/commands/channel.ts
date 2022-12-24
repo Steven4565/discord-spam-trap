@@ -4,12 +4,14 @@ import {
   SlashCommandSubcommandBuilder,
   SlashCommandStringOption,
   PermissionFlagsBits,
+  ChatInputCommandInteraction,
 } from 'discord.js';
 
-import config from '../config/config';
+import { getGuildConfig, updateConfig } from '../config/config';
 import { SubcommandObject } from '../types';
 import { parseSubcommands, replyEphemeral } from '../utils/commandHelpers';
-import { getChannel } from '../utils/getConfig';
+import { getChannel } from '../utils/apiHelper';
+import { DiscordClient } from '../DiscordClient';
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -36,9 +38,17 @@ module.exports = {
     )
     .setDefaultMemberPermissions(
       PermissionFlagsBits.BanMembers | PermissionFlagsBits.ManageChannels
-    ),
-  async execute(interaction: Interaction) {
+    )
+    .setDMPermission(false),
+  async execute(
+    client: DiscordClient,
+    interaction: ChatInputCommandInteraction
+  ) {
     if (!interaction.isChatInputCommand()) return;
+
+    if (!interaction.guildId)
+      return replyEphemeral(interaction, 'Could not access guild id');
+    const guildConfig = getGuildConfig(client.config, interaction.guildId);
 
     const subcommands: SubcommandObject[] = [
       {
@@ -52,7 +62,8 @@ module.exports = {
               'Could not find any channel with that id'
             );
 
-          config.channelId = newChannelId;
+          guildConfig.channelId = newChannelId;
+          updateConfig(client.config);
           replyEphemeral(
             interaction,
             'Successfully set channel to ' + newChannel.name
@@ -62,14 +73,15 @@ module.exports = {
       {
         name: 'remove',
         execute(interaction) {
-          config.channelId = undefined;
+          guildConfig.channelId = undefined;
+          updateConfig(client.config);
           replyEphemeral(interaction, 'Removed channel');
         },
       },
       {
         name: 'get',
         execute(interaction) {
-          if (!config.channelId)
+          if (!guildConfig.channelId)
             return replyEphemeral(
               interaction,
               'Channel id has not been set yet'
@@ -78,7 +90,7 @@ module.exports = {
           replyEphemeral(
             interaction,
             'Current trap channel is ' +
-              getChannel(config.channelId, interaction)!.name
+              getChannel(guildConfig.channelId, interaction)!.name
           );
         },
       },

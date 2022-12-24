@@ -1,14 +1,19 @@
 import { Events, Message } from 'discord.js';
-import config from '../config/config';
+import { getGuildConfig } from '../config/config';
 import { DiscordClient } from '../DiscordClient';
 import { EventObject } from '../types';
 
 const messageCreate: EventObject = {
   name: Events.MessageCreate,
-  execute: (client: DiscordClient, message: Message) => {
-    if (!config.enabled) return;
-    if (!config.channelId) return console.log('trap channel has not been set');
-    if (message.channelId != config.channelId) return;
+  execute: async (client: DiscordClient, message: Message) => {
+    if (!message.guildId)
+      return console.log('Could not access guild id from message object');
+    const guildConfig = getGuildConfig(client.config, message.guildId);
+
+    if (!guildConfig.enabled) return;
+    if (!guildConfig.channelId)
+      return console.log('trap channel has not been set');
+    if (message.channelId != guildConfig.channelId) return;
     if (message.author.bot) return console.log('member is a bot');
     if (message.guild?.ownerId == message.author.id)
       return console.log('member is the owner');

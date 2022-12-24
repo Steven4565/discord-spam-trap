@@ -8,14 +8,19 @@ import { DiscordClient } from './DiscordClient';
 
 export interface Command {
   data: SlashCommandBuilder;
-  execute(interaction: Interaction): void;
+  execute(
+    client: DiscordClient,
+    interaction: ChatInputCommandInteraction
+  ): void;
 }
 
-export interface Config {
+export interface GuildConfig {
   channelId: undefined | string;
   enabled: boolean;
   excluded: number[];
 }
+
+export type GuildListConfig = Record<string, GuildConfig>;
 
 export interface EventObject {
   name: Events;
