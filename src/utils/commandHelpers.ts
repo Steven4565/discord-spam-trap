@@ -3,6 +3,7 @@ import {
   Interaction,
   InteractionResponse,
 } from 'discord.js';
+import { SubcommandObject } from '../types';
 
 export async function replyEphemeral(
   interaction: ChatInputCommandInteraction,
@@ -12,4 +13,17 @@ export async function replyEphemeral(
     content: content,
     ephemeral: true,
   });
+}
+
+export function parseSubcommands(
+  interaction: ChatInputCommandInteraction,
+  subcommands: SubcommandObject[]
+) {
+  const choice = interaction.options.getSubcommand();
+  for (const subcmd of subcommands) {
+    if (choice == subcmd.name) {
+      subcmd.execute(interaction);
+      break;
+    }
+  }
 }

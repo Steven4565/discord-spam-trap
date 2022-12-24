@@ -1,4 +1,9 @@
-import { Events, Interaction, SlashCommandBuilder } from 'discord.js';
+import {
+  ChatInputCommandInteraction,
+  Events,
+  Interaction,
+  SlashCommandBuilder,
+} from 'discord.js';
 import { DiscordClient } from './DiscordClient';
 
 export interface Command {
@@ -15,4 +20,9 @@ export interface Config {
 export interface EventObject {
   name: Events;
   execute(client: DiscordClient, ...args: any[]): void;
+}
+
+export interface SubcommandObject {
+  name: string;
+  execute(interaction: ChatInputCommandInteraction): void;
 }

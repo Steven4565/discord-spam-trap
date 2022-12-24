@@ -3,11 +3,12 @@ import {
   Interaction,
   SlashCommandSubcommandBuilder,
   SlashCommandStringOption,
-  GuildBasedChannel,
+  PermissionFlagsBits,
 } from 'discord.js';
 
 import config from '../config/config';
-import { replyEphemeral } from '../utils/commandHelpers';
+import { SubcommandObject } from '../types';
+import { parseSubcommands, replyEphemeral } from '../utils/commandHelpers';
 import { getChannel } from '../utils/getConfig';
 
 module.exports = {
@@ -32,37 +33,57 @@ module.exports = {
     )
     .addSubcommand((subCommand: SlashCommandSubcommandBuilder) =>
       subCommand.setName('remove').setDescription('Removes the trap channel')
+    )
+    .setDefaultMemberPermissions(
+      PermissionFlagsBits.BanMembers | PermissionFlagsBits.ManageChannels
     ),
   async execute(interaction: Interaction) {
-    if (!interaction.isChatInputCommand()) {
-      return;
-    }
-    if (interaction.options.getSubcommand() === 'set') {
-      const newChannelId = interaction.options.getString('id') ?? '';
-      const newChannel = getChannel(newChannelId, interaction);
-      if (!newChannel)
-        return replyEphemeral(
-          interaction,
-          'Could not find any channel with that id'
-        );
+    if (!interaction.isChatInputCommand()) return;
 
-      config.channelId = newChannelId;
-      replyEphemeral(
-        interaction,
-        'Successfully set channel to ' + newChannel.name
-      );
-    } else if (interaction.options.getSubcommand() == 'remove') {
-      config.channelId = undefined;
-      replyEphemeral(interaction, 'Removed channel');
-    } else if (interaction.options.getSubcommand() == 'get') {
-      if (!config.channelId)
-        return replyEphemeral(interaction, 'Channel id has not been set yet');
+    const subcommands: SubcommandObject[] = [
+      {
+        name: 'set',
+        execute(interaction) {
+          const newChannelId = interaction.options.getString('id') ?? '';
+          const newChannel = getChannel(newChannelId, interaction);
+          if (!newChannel)
+            return replyEphemeral(
+              interaction,
+              'Could not find any channel with that id'
+            );
 
-      replyEphemeral(
-        interaction,
-        'Current trap channel is ' +
-          getChannel(config.channelId, interaction)!.name
-      );
-    }
+          config.channelId = newChannelId;
+          replyEphemeral(
+            interaction,
+            'Successfully set channel to ' + newChannel.name
+          );
+        },
+      },
+      {
+        name: 'remove',
+        execute(interaction) {
+          config.channelId = undefined;
+          replyEphemeral(interaction, 'Removed channel');
+        },
+      },
+      {
+        name: 'get',
+        execute(interaction) {
+          if (!config.channelId)
+            return replyEphemeral(
+              interaction,
+              'Channel id has not been set yet'
+            );
+
+          replyEphemeral(
+            interaction,
+            'Current trap channel is ' +
+              getChannel(config.channelId, interaction)!.name
+          );
+        },
+      },
+    ];
+
+    parseSubcommands(interaction, subcommands);
   },
 };
