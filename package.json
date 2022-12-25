@@ -5,7 +5,9 @@
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "script:deploy": "ts-node deploy.ts",
+    "script:delete": "ts-node delete.ts"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +15,7 @@
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "js-yaml": "^4.1.0",
+    "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
   },
   "devDependencies": {
