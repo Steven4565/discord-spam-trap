@@ -1,15 +1,18 @@
-import { GuildConfig, GuildListConfig } from '../types';
-import fs from 'fs';
-import yaml from 'js-yaml';
+import { GuildConfig, GuildListConfig } from "../types";
+import fs from "fs";
+import yaml from "js-yaml";
 
-const configPath = 'config.yaml';
+const configPath = "config.yaml";
 
 export function loadConfig() {
   let config: GuildListConfig = {} as GuildListConfig;
 
   try {
-    fs.writeFileSync(configPath, '', { flag: 'wx' });
-    config = (yaml.load(fs.readFileSync(configPath, 'utf8')) ??
+    try {
+      fs.writeFileSync(configPath, "", { flag: "wx" });
+    } catch (e) {}
+
+    config = (yaml.load(fs.readFileSync(configPath, "utf8")) ??
       config) as GuildListConfig;
   } catch (e) {
     console.log(e);

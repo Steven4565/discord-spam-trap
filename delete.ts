@@ -18,12 +18,12 @@ for (const file of commandFiles) {
   commands.push(command.data.toJSON());
 }
 
-const rest = new REST({ version: '10' }).setToken(process.env.token ?? '');
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN ?? '');
 
 (async () => {
   try {
     rest
-      .delete(Routes.applicationCommand(process.env.client_id ?? '', commandId))
+      .delete(Routes.applicationCommand(process.env.CLIENT_ID ?? '', commandId))
       .then(() => console.log('Successfully deleted application command'))
       .catch(console.error);
   } catch (error) {
